@@ -1,8 +1,10 @@
 package jaxrs.service;
 
 import io.swagger.annotations.Api;
-
-import java.util.UUID;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -19,12 +21,29 @@ import jaxrs.model.Contact;
 @Api(tags = "Contact manager")
 public class ContactService {
 
+	private ContactHandler contactHandler;
+
+	public ContactService() {
+		contactHandler = new ContactHandler();
+	}
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Creates a new contacts",
+			notes = "Every field of Contacts has to be declared")
+	@ApiResponses(
+			value = {
+					@ApiResponse(
+							code = 200,
+							message = "Given contact was created successfully.",
+							responseHeaders = @ResponseHeader(
+									name = "contact-id",
+									description = "The corresponding id, which can be used to access this contact",
+									response = String.class)),
+					@ApiResponse(code = 405,
+									message = "Given contact has one or more fields with value null.") })
 	public Response createNewContact(final Contact contact) {
-		final String id = UUID.randomUUID().toString();
-
-		return Response.status(200).header("contactId", id).build();
+		return contactHandler.createNewContact(contact);
 	}
 
 	@GET
@@ -32,22 +51,15 @@ public class ContactService {
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getContact(@PathParam("id") final String contactId) {
-		final Contact c = new Contact();
-		c.setId(contactId);
-		c.setEmail("example@test.com");
-		c.setName("Günther");
-		c.setLastName("Müller");
-		c.setPhoneNumber("+4912345678");
-
-		return Response.status(200).entity(c).build();
+		return contactHandler.getContact(contactId);
 	}
 
 	public void alterContact(final String contactId) {
-
+		contactHandler.alterContact(contactId);
 	}
 
 	public void deleteContact(final String contactId) {
-
+		contactHandler.deleteContact(contactId);
 	}
 
 }
