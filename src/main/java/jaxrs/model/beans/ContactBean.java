@@ -1,21 +1,15 @@
-package jaxrs.model;
+package jaxrs.model.beans;
 
-public class Contact {
+import io.swagger.annotations.ApiModelProperty;
 
-	private String id;
+public class ContactBean {
+
 	private String name;
 	private String lastName;
 	private String phoneNumber;
 	private String email;
 
-	public String getId() {
-		return id;
-	}
-
-	public void setId(final String id) {
-		this.id = id;
-	}
-
+	@ApiModelProperty(value = "The name of this contact.", required = true, example = "John")
 	public String getName() {
 		return name;
 	}
@@ -24,6 +18,7 @@ public class Contact {
 		this.name = name;
 	}
 
+	@ApiModelProperty(value = "The last name of this contact.", required = true, example = "Doe")
 	public String getLastName() {
 		return lastName;
 	}
@@ -32,6 +27,7 @@ public class Contact {
 		this.lastName = lastName;
 	}
 
+	@ApiModelProperty(value = "The phone number of this contact.", required = true)
 	public String getPhoneNumber() {
 		return phoneNumber;
 	}
@@ -40,6 +36,8 @@ public class Contact {
 		this.phoneNumber = phoneNumber;
 	}
 
+	@ApiModelProperty(value = "The email of this contact.", required = true,
+			example = "johndoe@example.com")
 	public String getEmail() {
 		return email;
 	}
