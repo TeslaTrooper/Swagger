@@ -12,6 +12,6 @@ public class SQLStatements {
 
 	public static final String DELETE_CONTACT = "DELETE FROM contacts WHERE uuid = ?";
 
-	public static final String UPDATE_CONTACT = "UPDATE contacts SET (name = ?, lastName = ?, phoneNumber = ?, email = ?";
+	public static final String UPDATE_CONTACT = "UPDATE contacts SET uuid = ?, name = ?, lastName = ?, phoneNumber = ?, email = ? WHERE uuid = ?";
 
 }

@@ -47,8 +47,8 @@ public class ContactHandler {
 		return Response.status(200).entity(c).build();
 	}
 
-	public Response alterContact(final ContactBean contact) {
-		if (db.alterContact(contact) > 0) {
+	public Response alterContact(final String contactId, final ContactBean contact) {
+		if (db.alterContact(contactId, contact) > 0) {
 			return Response.status(200).build();
 		}
 

@@ -7,14 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import javax.ws.rs.ext.Provider;
-
 import jaxrs.model.beans.Contact;
 import jaxrs.model.beans.ContactBean;
 
 import com.google.common.base.Throwables;
 
-@Provider
 public class DBConnector {
 
 	private final Connection connection;
@@ -86,13 +83,15 @@ public class DBConnector {
 		}
 	}
 
-	public int alterContact(final ContactBean contact) {
+	public int alterContact(final String contactId, final ContactBean contact) {
 		try (final PreparedStatement stmt = connection
 				.prepareStatement(SQLStatements.UPDATE_CONTACT)) {
-			stmt.setString(1, contact.getName());
-			stmt.setString(2, contact.getLastName());
-			stmt.setString(3, contact.getPhoneNumber());
-			stmt.setString(4, contact.getEmail());
+			stmt.setString(1, contactId);
+			stmt.setString(2, contact.getName());
+			stmt.setString(3, contact.getLastName());
+			stmt.setString(4, contact.getPhoneNumber());
+			stmt.setString(5, contact.getEmail());
+			stmt.setString(6, contactId);
 
 			return stmt.executeUpdate();
 		} catch (final SQLException e) {
@@ -106,6 +105,10 @@ public class DBConnector {
 		} catch (final SQLException e) {
 			throw Throwables.propagate(e);
 		}
+	}
+
+	public static void main(final String[] args) {
+		new DBConnector().alterContact("1", new Contact());
 	}
 
 }

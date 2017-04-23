@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ResponseHeader;
-import io.swagger.jaxrs.ext.SwaggerExtensions;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -23,21 +22,14 @@ import jaxrs.model.ContactHandler;
 import jaxrs.model.beans.Contact;
 import jaxrs.model.beans.ContactBean;
 
-import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-
 @Path("contacts")
 @Api(tags = "Contact manager")
-public class ContactService extends ResourceConfig {
+public class ContactService {
 
 	private ContactHandler contactHandler;
 
 	public ContactService() {
-		super(ContactService.class, MultiPartFeature.class);
 		contactHandler = new ContactHandler();
-
-		SwaggerExtensions.getExtensions().add(new SwaggerR());
 	}
 
 	@POST
@@ -75,25 +67,18 @@ public class ContactService extends ResourceConfig {
 
 	@PUT
 	@Path("{id}")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Alters an existing contact",
-			notes = "The value for attribute has to be a valid value from contacts.")
-	@ApiResponses(
-			value = {
-					@ApiResponse(
-							code = 200,
-							message = "Given contact was altered successfully.",
-							responseHeaders = @ResponseHeader(
-									name = "contact-id",
-									description = "The corresponding id, which can be used to access this contact",
-									response = String.class)),
-					@ApiResponse(code = 405,
-							message = "Invalid input for either attribute, or value."),
-					@ApiResponse(code = 404, message = "Contact does not exist!") })
-	public Response alterContact(
-			@ApiParam(value = "The id for the requested contact.", required = true) @PathParam("id") final String contactId,
-			@ApiParam(value = "The attribute to change for this contact.", required = true) @FormDataParam("body") final ContactBean contactForm) {
-		return contactHandler.alterContact(contactForm);
+	notes = "The value for attribute has to be a valid value from contacts.")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Given contact was altered successfully."),
+			@ApiResponse(code = 405, message = "Invalid input for either attribute, or value."),
+			@ApiResponse(code = 404, message = "Contact does not exist!") })
+	public Response alterContact(@ApiParam(value = "The id for the requested contact.",
+			required = true, name = "id") @PathParam("id") final String contactId,
+			@ApiParam(value = "The attribute to change for this contact.", required = true,
+					name = "contact") final ContactBean contact) {
+		return contactHandler.alterContact(contactId, contact);
 	}
 
 	@DELETE
