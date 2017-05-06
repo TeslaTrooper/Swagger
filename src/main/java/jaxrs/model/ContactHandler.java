@@ -1,5 +1,6 @@
 package jaxrs.model;
 
+import java.lang.reflect.Field;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
@@ -47,8 +48,15 @@ public class ContactHandler {
 		return Response.status(200).entity(c).build();
 	}
 
-	public Response alterContact(final String contactId, final ContactBean contact) {
-		if (db.alterContact(contactId, contact) > 0) {
+	public Response alterContact(final String contactId, final String attrib, final String value) {
+		Field f;
+		try {
+			f = ContactBean.class.getDeclaredField(attrib);
+		} catch (final Exception e) {
+			return Response.status(405).build();
+		}
+
+		if (db.alterContact(contactId, f, value) > 0) {
 			return Response.status(200).build();
 		}
 

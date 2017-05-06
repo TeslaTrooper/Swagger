@@ -23,7 +23,7 @@ import jaxrs.model.beans.Contact;
 import jaxrs.model.beans.ContactBean;
 
 @Path("contacts")
-@Api(tags = "Contact manager")
+@Api(value = "Contact manager", protocols = "ZZZ")
 public class ContactService {
 
 	private ContactHandler contactHandler;
@@ -47,7 +47,8 @@ public class ContactService {
 									response = String.class)),
 					@ApiResponse(code = 405,
 							message = "Given contact has one or more fields with value null.") })
-	public Response createNewContact(final ContactBean contact) {
+	public Response createNewContact(@ApiParam(value = "Contact information as json format",
+			required = true) final ContactBean contact) {
 		return contactHandler.createNewContact(contact);
 	}
 
@@ -55,7 +56,7 @@ public class ContactService {
 	@Path("{id}")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
-	@ApiOperation(value = "Fetches an existing contact", response = Contact.class)
+	@ApiOperation(value = "Fetches an existing contact")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Given contact was fetched successfully.",
 					response = Contact.class),
@@ -66,10 +67,10 @@ public class ContactService {
 	}
 
 	@PUT
-	@Path("{id}")
+	@Path("{id}/{attrib}/{newValue}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ApiOperation(value = "Alters an existing contact",
-	notes = "The value for attribute has to be a valid value from contacts.")
+	notes = "The value for attribute has to be a valid attribue from contacts.")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Given contact was altered successfully."),
 			@ApiResponse(code = 405, message = "Invalid input for either attribute, or value."),
@@ -77,8 +78,10 @@ public class ContactService {
 	public Response alterContact(@ApiParam(value = "The id for the requested contact.",
 			required = true, name = "id") @PathParam("id") final String contactId,
 			@ApiParam(value = "The attribute to change for this contact.", required = true,
-					name = "contact") final ContactBean contact) {
-		return contactHandler.alterContact(contactId, contact);
+	name = "attrib") @PathParam("attrib") final String attrib, @ApiParam(
+			value = "The new value for the given attribute.", required = true,
+			name = "newValue") @PathParam("newValue") final String value) {
+		return contactHandler.alterContact(contactId, attrib, value);
 	}
 
 	@DELETE
@@ -88,7 +91,7 @@ public class ContactService {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Given contact was deleted successfully."),
 			@ApiResponse(code = 404, message = "Contact does not exist.") })
-	public Response deleteContact(@ApiParam(value = "The id for the contact to delete.",
+	public Response deleteContacta(@ApiParam(value = "The id for the contact to delete.",
 			required = true) @PathParam("id") final String contactId) {
 		return contactHandler.deleteContact(contactId);
 	}

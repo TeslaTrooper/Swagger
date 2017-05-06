@@ -7,10 +7,10 @@
 	<artifactId>test</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>jaxrsTest</name>
+	<name>swaggerAnnotations</name>
 
 	<build>
-		<finalName>jaxrsTest</finalName>
+		<finalName>swaggerAnnotations</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-jersey2-jaxrs</artifactId>
-			<version>1.5.0</version>
+			<version>1.5.13</version>
 		</dependency>
 
 		<dependency>

@@ -1,5 +1,6 @@
 package jaxrs.persistence;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -68,7 +69,7 @@ public class DBConnector {
 			c.setEmail(result.getString(5));
 
 			return c;
-		} catch (final SQLException e) {
+		} catch (final Exception e) {
 			throw Throwables.propagate(e);
 		}
 	}
@@ -83,18 +84,26 @@ public class DBConnector {
 		}
 	}
 
-	public int alterContact(final String contactId, final ContactBean contact) {
+	public int alterContact(final String contactId, final Field attrib, final String value) {
+		final Contact c = selectContact(contactId);
+
 		try (final PreparedStatement stmt = connection
 				.prepareStatement(SQLStatements.UPDATE_CONTACT)) {
+			final char a[] = attrib.getName().toCharArray();
+			a[0] = Character.toUpperCase(a[0]);
+			final String attribTmp = new String(a);
+
+			c.getClass().getMethod("set" + attribTmp, String.class).invoke(c, value);
+
 			stmt.setString(1, contactId);
-			stmt.setString(2, contact.getName());
-			stmt.setString(3, contact.getLastName());
-			stmt.setString(4, contact.getPhoneNumber());
-			stmt.setString(5, contact.getEmail());
+			stmt.setString(2, c.getName());
+			stmt.setString(3, c.getLastName());
+			stmt.setString(4, c.getPhoneNumber());
+			stmt.setString(5, c.getEmail());
 			stmt.setString(6, contactId);
 
 			return stmt.executeUpdate();
-		} catch (final SQLException e) {
+		} catch (final Exception e) {
 			throw Throwables.propagate(e);
 		}
 	}
@@ -107,8 +116,17 @@ public class DBConnector {
 		}
 	}
 
-	public static void main(final String[] args) {
-		new DBConnector().alterContact("1", new Contact());
+	public static void main(final String[] args) throws NoSuchFieldException, SecurityException {
+		final DBConnector c = new DBConnector();
+
+		final Field fname = ContactBean.class.getDeclaredField("name");
+		final Field flastName = ContactBean.class.getDeclaredField("lastName");
+		final Field fnumber = ContactBean.class.getDeclaredField("phoneNumber");
+		final Field femail = ContactBean.class.getDeclaredField("email");
+		c.alterContact("61b5a5b2-9397-4848-a2a5-e6bee084e4c6", fname, "harald");
+		c.alterContact("61b5a5b2-9397-4848-a2a5-e6bee084e4c6", flastName, "harald");
+		c.alterContact("61b5a5b2-9397-4848-a2a5-e6bee084e4c6", fnumber, "harald");
+		c.alterContact("61b5a5b2-9397-4848-a2a5-e6bee084e4c6", femail, "harald");
 	}
 
 }
