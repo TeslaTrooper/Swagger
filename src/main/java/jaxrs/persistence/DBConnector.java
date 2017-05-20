@@ -7,9 +7,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
-import jaxrs.model.beans.Contact;
 import jaxrs.model.beans.ContactBean;
+import jaxrs.model.beans.ContactMinimal;
 
 import com.google.common.base.Throwables;
 
@@ -35,22 +37,22 @@ public class DBConnector {
 		}
 	}
 
-	public void insert(final Contact contact) {
+	public int insert(final String id, final ContactBean contact) {
 		try (final PreparedStatement stmt = connection
 				.prepareStatement(SQLStatements.INSERT_CONTACT)) {
-			stmt.setString(1, contact.getId());
+			stmt.setString(1, id);
 			stmt.setString(2, contact.getName());
 			stmt.setString(3, contact.getLastName());
 			stmt.setString(4, contact.getPhoneNumber());
 			stmt.setString(5, contact.getEmail());
 
-			stmt.executeUpdate();
+			return stmt.executeUpdate();
 		} catch (final SQLException e) {
-			throw Throwables.propagate(e);
+			return 0;
 		}
 	}
 
-	public Contact selectContact(final String uuid) {
+	public ContactBean selectContact(final String uuid) {
 		try (final PreparedStatement stmt = connection
 				.prepareStatement(SQLStatements.SELECT_CONTACT)) {
 			stmt.setString(1, uuid);
@@ -61,8 +63,7 @@ public class DBConnector {
 				return null;
 			}
 
-			final Contact c = new Contact();
-			c.setId(result.getString(1));
+			final ContactBean c = new ContactBean();
 			c.setName(result.getString(2));
 			c.setLastName(result.getString(3));
 			c.setPhoneNumber(result.getString(4));
@@ -70,7 +71,7 @@ public class DBConnector {
 
 			return c;
 		} catch (final Exception e) {
-			throw Throwables.propagate(e);
+			return null;
 		}
 	}
 
@@ -80,12 +81,12 @@ public class DBConnector {
 
 			return stmt.executeUpdate();
 		} catch (final SQLException e) {
-			throw Throwables.propagate(e);
+			return 0;
 		}
 	}
 
 	public int alterContact(final String contactId, final Field attrib, final String value) {
-		final Contact c = selectContact(contactId);
+		final ContactBean c = selectContact(contactId);
 
 		try (final PreparedStatement stmt = connection
 				.prepareStatement(SQLStatements.UPDATE_CONTACT)) {
@@ -104,7 +105,33 @@ public class DBConnector {
 
 			return stmt.executeUpdate();
 		} catch (final Exception e) {
-			throw Throwables.propagate(e);
+			return 0;
+		}
+	}
+
+	public List<ContactMinimal> getList() {
+		final List<ContactMinimal> contacts = new ArrayList<>();
+
+		try (final PreparedStatement stmt = connection.prepareStatement(SQLStatements.SELECT_ALL)) {
+			final ResultSet result = stmt.executeQuery();
+
+			if (!result.first()) {
+				return null;
+			}
+
+			while (result.next()) {
+				final ContactMinimal c = new ContactMinimal();
+
+				c.setId(result.getString(1));
+				c.setName(result.getString(2));
+				c.setLastName(result.getString(3));
+
+				contacts.add(c);
+			}
+
+			return contacts;
+		} catch (final Exception e) {
+			return null;
 		}
 	}
 

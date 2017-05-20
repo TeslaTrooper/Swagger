@@ -1,12 +1,11 @@
 package jaxrs.model;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.UUID;
 
-import javax.ws.rs.core.Response;
-
-import jaxrs.model.beans.Contact;
 import jaxrs.model.beans.ContactBean;
+import jaxrs.model.beans.ContactMinimal;
 import jaxrs.persistence.DBConnector;
 
 public class ContactHandler {
@@ -19,55 +18,43 @@ public class ContactHandler {
 		db.createTable();
 	}
 
-	public Response createNewContact(final ContactBean contact) {
+	public String createNewContact(final ContactBean contact) {
 		if ((contact == null) || (contact.getEmail() == null) || (contact.getLastName() == null)
 				|| (contact.getName() == null) || (contact.getPhoneNumber() == null)) {
-			return Response.status(405).build();
+			return null;
 		}
 
 		final String id = UUID.randomUUID().toString();
 
-		final Contact c = new Contact();
-		c.setId(id);
+		final ContactBean c = new ContactBean();
 		c.setName(contact.getName());
 		c.setLastName(contact.getLastName());
 		c.setPhoneNumber(contact.getPhoneNumber());
 		c.setEmail(contact.getEmail());
 
-		db.insert(c);
-
-		return Response.status(200).header("contact-id", id).build();
+		return db.insert(id, c) > 0 ? id : null;
 	}
 
-	public Response getContact(final String contactId) {
-		final Contact c = db.selectContact(contactId);
-		if (c == null) {
-			return Response.status(404).build();
-		}
-
-		return Response.status(200).entity(c).build();
+	public ContactBean getContact(final String contactId) {
+		return db.selectContact(contactId);
 	}
 
-	public Response alterContact(final String contactId, final String attrib, final String value) {
+	public int alterContact(final String contactId, final String attrib, final String value) {
 		Field f;
 		try {
 			f = ContactBean.class.getDeclaredField(attrib);
 		} catch (final Exception e) {
-			return Response.status(405).build();
+			return -1;
 		}
 
-		if (db.alterContact(contactId, f, value) > 0) {
-			return Response.status(200).build();
-		}
-
-		return Response.status(404).build();
+		return db.alterContact(contactId, f, value);
 	}
 
-	public Response deleteContact(final String contactId) {
-		if (db.deleteContact(contactId) > 0) {
-			return Response.status(200).build();
-		}
+	public boolean deleteContact(final String contactId) {
+		return db.deleteContact(contactId) > 0;
+	}
 
-		return Response.status(404).build();
+	public List<ContactMinimal> getList() {
+		return db.getList();
 	}
 }

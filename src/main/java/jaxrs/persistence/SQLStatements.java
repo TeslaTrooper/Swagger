@@ -14,4 +14,6 @@ public class SQLStatements {
 
 	public static final String UPDATE_CONTACT = "UPDATE contacts SET uuid = ?, name = ?, lastName = ?, phoneNumber = ?, email = ? WHERE uuid = ?";
 
+	public static final String SELECT_ALL = "SELECT uuid, name, lastName FROM contacts";
+
 }
